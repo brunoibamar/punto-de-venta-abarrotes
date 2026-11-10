@@ -8,132 +8,46 @@ const seed = [
   { id: crypto.randomUUID(), name: 'Agua natural 1 L', code: '7501086801046', category: 'Bebidas', price: 16, cost: 9, stock: 20, unit: 'pieza' },
   { id: crypto.randomUUID(), name: 'Galletas Marías', code: '7501000111309', category: 'Abarrotes', price: 17, cost: 11, stock: 14, unit: 'pieza' },
 ];
-const today = new Date().toISOString().slice(0, 10);
 const money = n => new Intl.NumberFormat('es-MX', { style: 'currency', currency: 'MXN' }).format(n || 0);
-let state = { products: seed, sales: [], cart: [], view: 'venta', query: '', category: 'Todos', folder: null };
+const dayKey = date => new Date(date).toLocaleDateString('en-CA');
+let state = { products: seed, sales: [], archives: [], expenses: [], cash: [], cart: [], view: 'venta', query: '', category: 'Todos', folder: null, camera: null, stream: null };
 let db;
 const openDb = () => new Promise((resolve, reject) => {
   const request = indexedDB.open('tiendita-config', 1);
   request.onupgradeneeded = () => request.result.createObjectStore('settings');
-  request.onsuccess = () => { db = request.result; resolve(db); };
-  request.onerror = () => reject(request.error);
+  request.onsuccess = () => { db = request.result; resolve(db); }; request.onerror = () => reject(request.error);
 });
-const getHandle = () => new Promise(resolve => {
-  if (!db) return resolve(null);
-  const request = db.transaction('settings').objectStore('settings').get('folder');
-  request.onsuccess = () => resolve(request.result || null);
-  request.onerror = () => resolve(null);
-});
-const putHandle = handle => new Promise((resolve, reject) => {
-  const request = db.transaction('settings', 'readwrite').objectStore('settings').put(handle, 'folder');
-  request.onsuccess = resolve; request.onerror = () => reject(request.error);
-});
-async function loadFile() {
-  if (!state.folder) return false;
-  try {
-    if (await state.folder.queryPermission({ mode: 'readwrite' }) !== 'granted') return false;
-    const file = await state.folder.getFileHandle('tiendita-datos.json');
-    const data = JSON.parse(await (await file.getFile()).text());
-    state.products = data.products || seed; state.sales = data.sales || [];
-    return true;
-  } catch { return false; }
-}
-async function persist() {
-  if (!state.folder) return false;
-  try {
-    const permission = await state.folder.requestPermission({ mode: 'readwrite' });
-    if (permission !== 'granted') throw new Error('Permiso de carpeta pendiente');
-    const file = await state.folder.getFileHandle('tiendita-datos.json', { create: true });
-    const writer = await file.createWritable();
-    await writer.write(JSON.stringify({ version: 1, updatedAt: new Date().toISOString(), products: state.products, sales: state.sales }, null, 2));
-    await writer.close(); return true;
-  } catch (error) { alert(`No se pudo guardar en la carpeta. La venta sigue en pantalla; intenta guardar de nuevo. ${error.message}`); return false; }
-}
-async function chooseFolder() {
-  if (!window.showDirectoryPicker) return alert('Este navegador no permite elegir una carpeta. Abre la app con Chrome actualizado en Android.');
-  try {
-    state.folder = await window.showDirectoryPicker({ id: 'tiendita', mode: 'readwrite' });
-    await putHandle(state.folder);
-    const loaded = await loadFile();
-    if (!loaded) await persist();
-    render();
-  } catch (error) { if (error.name !== 'AbortError') alert('No se pudo abrir la carpeta.'); }
-}
-const cats = () => ['Todos', ...new Set(state.products.map(p => p.category))];
-const filtered = () => state.products.filter(p => (state.category === 'Todos' || p.category === state.category) && `${p.name} ${p.code}`.toLowerCase().includes(state.query.toLowerCase()));
-const cartTotal = () => state.cart.reduce((sum, row) => sum + row.qty * row.price, 0);
-function add(product, qty = 1) {
-  const row = state.cart.find(item => item.id === product.id);
-  if (row) row.qty = Math.round((row.qty + qty) * 1000) / 1000;
-  else state.cart.push({ id: product.id, name: product.name, unit: product.unit, qty, price: product.price, cost: product.cost });
-  render();
-}
-async function checkout() {
-  if (!state.cart.length) return;
-  if (!state.folder) return alert('Primero selecciona la carpeta donde guardarás los datos de la tienda.');
-  const total = cartTotal();
-  const paid = Number(prompt(`Total ${money(total)}\n¿Cuánto pagó el cliente?`, String(total)));
-  if (!Number.isFinite(paid) || paid < total) return alert('El pago debe cubrir el total de la venta.');
-  const sale = { id: crypto.randomUUID(), date: new Date().toISOString(), total, paid, change: paid - total, items: structuredClone(state.cart) };
-  for (const item of sale.items) {
-    const product = state.products.find(p => p.id === item.id);
-    if (product) product.stock = Math.max(0, Math.round((product.stock - item.qty) * 1000) / 1000);
-  }
-  state.sales.push(sale);
-  if (!await persist()) return;
-  state.cart = []; render(); alert(`Venta guardada. Cambio: ${money(sale.change)}`);
-}
-function addProduct() {
-  const name = prompt('Nombre del producto'); if (!name) return;
-  const price = Number(prompt('Precio de venta ($)')); if (!(price > 0)) return;
-  const cost = Number(prompt('Costo de compra ($)')); if (!(cost >= 0)) return;
-  const unit = prompt('Unidad: pieza, kg o docena', 'pieza') || 'pieza';
-  const code = prompt('Código de barras (opcional)', '') || '';
-  state.products.push({ id: crypto.randomUUID(), name, code, category: 'Abarrotes', price, cost, stock: 0, unit });
-  persist().then(render);
-}
-function layout() {
-  const viewTitle = { venta: 'Punto de venta', inventario: 'Inventario', resumen: 'Resumen' }[state.view];
-  return `<div class="shell">
-    <aside class="rail"><div class="brand"><span class="brand-mark">L</span><span>la tiendita<small>punto de venta</small></span></div><nav>${nav('venta','▦','Vender')}${nav('inventario','▤','Inventario')}${nav('resumen','◷','Resumen')}</nav><div class="rail-foot"><span class="status-dot ${state.folder?'online':''}"></span>${state.folder?'Carpeta lista':'Falta elegir carpeta'}</div></aside>
-    <main class="main"><header class="topbar"><div><div class="eyebrow">TU NEGOCIO, EN ORDEN</div><h1>${viewTitle}</h1></div><button class="folder-btn" data-action="folder"><span>▱</span> ${state.folder?'Carpeta conectada':'Elegir carpeta'}</button></header>
-    ${state.view==='venta'?salesPage():state.view==='inventario'?inventoryPage():summaryPage()}</main>
-    <nav class="mobile-nav">${nav('venta','▦','Vender')}${nav('inventario','▤','Stock')}${nav('resumen','◷','Resumen')}</nav>
-  </div>`;
-}
-function nav(id, icon, label) { return `<button class="nav-item ${state.view===id?'active':''}" data-view="${id}"><span>${icon}</span><b>${label}</b></button>`; }
-function salesPage() {
-  return `<div class="page-grid"><section class="catalog"><div class="search-wrap"><span>⌕</span><input id="search" value="${escapeHtml(state.query)}" placeholder="Busca o escanea un producto" autocomplete="off"><kbd>ESCÁNER</kbd></div><div class="chips">${cats().map(c=>`<button class="chip ${state.category===c?'selected':''}" data-cat="${escapeHtml(c)}">${escapeHtml(c)}</button>`).join('')}</div><div class="product-grid">${filtered().map(p=>`<button class="product-card" data-add="${p.id}"><div class="product-icon ${p.category==='Cremería'?'dairy':''}">${p.category==='Cremería'?'🥛':p.category==='Bebidas'?'🥤':p.category==='Botanas'?'🥔':'🛒'}</div><div class="product-name">${escapeHtml(p.name)}</div><div class="product-meta">${p.unit==='kg'?'Se vende por kilo':`${p.stock} disponibles`}</div><strong>${money(p.price)}<small>${p.unit==='kg'?' / kg':''}</small></strong></button>`).join('')}</div></section>
-    <aside class="ticket"><div class="ticket-head"><div><span class="eyebrow">VENTA ACTUAL</span><h2>Cuenta</h2></div><button class="text-button" data-action="clear">Vaciar</button></div>${state.cart.length?`<div class="ticket-items">${state.cart.map(row=>`<div class="ticket-row"><div><b>${escapeHtml(row.name)}</b><small>${money(row.price)}${row.unit==='kg'?' / kg':''}</small></div><div class="qty"><button data-qty="${row.id}" data-delta="-1">−</button><input data-inputqty="${row.id}" value="${row.qty}" aria-label="Cantidad"><button data-qty="${row.id}" data-delta="1">+</button></div><strong>${money(row.qty*row.price)}</strong></div>`).join('')}</div>`:`<div class="empty-ticket"><span>🧺</span><b>Tu cuenta está vacía</b><small>Toca un producto o escanéalo para comenzar.</small></div>`}<div class="ticket-bottom"><div class="total-line"><span>Total</span><strong>${money(cartTotal())}</strong></div><button class="charge-btn" data-action="charge" ${state.cart.length?'':'disabled'}>Cobrar <span>→</span></button><div class="secure-note">▣ Cada venta se guarda en tu carpeta</div></div></aside></div>`;
-}
-function inventoryPage() {
-  return `<section class="inventory-panel"><div class="section-head"><div><span class="eyebrow">PRODUCTOS DE TU TIENDA</span><h2>Inventario</h2></div><button class="primary-btn" data-action="new-product">＋ Agregar producto</button></div><div class="table-wrap"><table><thead><tr><th>Producto</th><th>Código</th><th>Precio</th><th>Existencia</th><th>Unidad</th></tr></thead><tbody>${state.products.map(p=>`<tr><td><b>${escapeHtml(p.name)}</b><small>${escapeHtml(p.category)}</small></td><td>${escapeHtml(p.code||'—')}</td><td>${money(p.price)}</td><td><span class="stock ${p.stock<5?'low':''}">${p.stock}</span></td><td>${escapeHtml(p.unit)}</td></tr>`).join('')}</tbody></table></div></section>`;
-}
-function summaryPage() {
-  const sales = state.sales.filter(s=>s.date.slice(0,10)===today);
-  const revenue = sales.reduce((n,s)=>n+s.total,0);
-  const profit = sales.reduce((n,s)=>n+s.items.reduce((m,i)=>m+(i.price-i.cost)*i.qty,0),0);
-  return `<section class="summary"><span class="eyebrow">HOY · ${new Date().toLocaleDateString('es-MX',{weekday:'long',day:'numeric',month:'long'})}</span><h2>Así va tu tienda</h2><div class="stat-grid"><article class="stat-card"><span>Ventas del día</span><strong>${money(revenue)}</strong><small>${sales.length} ${sales.length===1?'venta':'ventas'}</small></article><article class="stat-card"><span>Utilidad bruta estimada</span><strong>${money(profit)}</strong><small>Venta menos costo de mercancía</small></article><article class="stat-card"><span>Productos registrados</span><strong>${state.products.length}</strong><small>${state.products.filter(p=>p.stock<5).length} con pocas existencias</small></article></div><div class="inventory-panel recent"><div class="section-head"><div><span class="eyebrow">REGISTRO</span><h2>Ventas recientes</h2></div></div>${sales.length?sales.slice().reverse().slice(0,8).map(s=>`<div class="recent-row"><span>${new Date(s.date).toLocaleTimeString('es-MX',{hour:'2-digit',minute:'2-digit'})} · ${s.items.length} productos</span><b>${money(s.total)}</b></div>`).join(''):'<p class="muted">Todavía no hay ventas hoy.</p>'}</div></section>`;
-}
-function escapeHtml(value) { return String(value).replace(/[&<>"']/g, c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c])); }
-function render() { document.querySelector('#app').innerHTML=layout(); bind(); }
-function bind() {
-  document.querySelectorAll('[data-view]').forEach(el=>el.onclick=()=>{state.view=el.dataset.view;render();});
-  document.querySelectorAll('[data-cat]').forEach(el=>el.onclick=()=>{state.category=el.dataset.cat;render();});
-  document.querySelectorAll('[data-add]').forEach(el=>el.onclick=()=>{const p=state.products.find(p=>p.id===el.dataset.add);if(p.unit==='kg'){const grams=Number(prompt(`${p.name}\n¿Cuántos gramos?`, '250'));if(grams>0)add(p,grams/1000);}else add(p);});
-  document.querySelectorAll('[data-qty]').forEach(el=>el.onclick=()=>{const row=state.cart.find(i=>i.id===el.dataset.qty);row.qty=Math.max(.001,Math.round((row.qty+Number(el.dataset.delta))*1000)/1000);render();});
-  document.querySelectorAll('[data-inputqty]').forEach(el=>el.onchange=()=>{const row=state.cart.find(i=>i.id===el.dataset.inputqty);row.qty=Math.max(.001,Number(el.value)||1);render();});
-  document.querySelector('#search')?.addEventListener('input',e=>{const cursor=e.target.selectionStart;state.query=e.target.value;const code=state.query.trim();const match=state.products.find(p=>p.code&&p.code===code);render();const input=document.querySelector('#search');input.focus();input.setSelectionRange(cursor,cursor);if(match){add(match);state.query='';render();}});
-  document.querySelector('[data-action="folder"]')?.addEventListener('click',chooseFolder);
-  document.querySelector('[data-action="charge"]')?.addEventListener('click',checkout);
-  document.querySelector('[data-action="clear"]')?.addEventListener('click',()=>{state.cart=[];render();});
-  document.querySelector('[data-action="new-product"]')?.addEventListener('click',addProduct);
-}
-async function start() {
-  await openDb(); state.folder=await getHandle();
-  if(state.folder && await loadFile()) { /* Existing store restored from its chosen folder. */ }
-  else state.folder=null;
-  render();
-  if('serviceWorker' in navigator && location.protocol!=='file:') navigator.serviceWorker.register('/sw.js').catch(()=>{});
-}
+const getHandle = () => new Promise(resolve => { const r=db.transaction('settings').objectStore('settings').get('folder');r.onsuccess=()=>resolve(r.result||null);r.onerror=()=>resolve(null); });
+const putHandle = handle => new Promise((resolve,reject)=>{const r=db.transaction('settings','readwrite').objectStore('settings').put(handle,'folder');r.onsuccess=resolve;r.onerror=()=>reject(r.error);});
+function applyData(data) { state.products=data.products||seed;state.sales=data.sales||[];state.archives=data.archives||[];state.expenses=data.expenses||[];state.cash=data.cash||[]; }
+function exportData() { return { version:2,updatedAt:new Date().toISOString(),products:state.products,sales:state.sales,archives:state.archives,expenses:state.expenses,cash:state.cash }; }
+async function loadFile() { if(!state.folder)return false;try{if(await state.folder.queryPermission({mode:'readwrite'})!=='granted')return false;const file=await state.folder.getFileHandle('tiendita-datos.json');applyData(JSON.parse(await(await file.getFile()).text()));return true;}catch{return false;} }
+async function persist() { if(!state.folder){alert('Elige primero la carpeta donde guardarás los datos.');return false;}try{if(await state.folder.requestPermission({mode:'readwrite'})!=='granted')throw new Error('Permiso de carpeta pendiente');const file=await state.folder.getFileHandle('tiendita-datos.json',{create:true});const writer=await file.createWritable();await writer.write(JSON.stringify(exportData(),null,2));await writer.close();return true;}catch(error){alert(`No se pudo guardar. Los cambios siguen en pantalla. ${error.message}`);return false;} }
+async function chooseFolder(){if(!window.showDirectoryPicker)return alert('Elige una carpeta desde Chrome actualizado en Android.');try{state.folder=await window.showDirectoryPicker({id:'tiendita',mode:'readwrite'});await putHandle(state.folder);if(!await loadFile())await persist();render();}catch(e){if(e.name!=='AbortError')alert('No se pudo abrir la carpeta.');}}
+const cats=()=>['Todos',...new Set(state.products.map(p=>p.category))];
+const filtered=()=>state.products.filter(p=>(state.category==='Todos'||p.category===state.category)&&`${p.name} ${p.code}`.toLowerCase().includes(state.query.toLowerCase()));
+const cartTotal=()=>state.cart.reduce((n,i)=>n+i.qty*i.price,0);
+const today=()=>dayKey(new Date());
+const todaySales=()=>state.sales.filter(s=>dayKey(s.date)===today());
+const isOpen=()=>state.cash.some(c=>c.status==='open');
+function add(product,qty=1){const row=state.cart.find(x=>x.id===product.id);if(row)row.qty=Math.round((row.qty+qty)*1000)/1000;else state.cart.push({id:product.id,name:product.name,unit:product.unit,qty,price:product.price,cost:product.cost});render();}
+async function checkout(){if(!state.cart.length)return;if(!state.folder)return alert('Elige primero la carpeta de datos.');if(!isOpen())return alert('Abre la caja antes de registrar ventas.');const total=cartTotal();const method=prompt(`Total ${money(total)}\nForma de pago: efectivo, tarjeta o transferencia`,'efectivo')?.toLowerCase();if(!['efectivo','tarjeta','transferencia'].includes(method))return alert('Escribe efectivo, tarjeta o transferencia.');const paid=method==='efectivo'?Number(prompt(`Total ${money(total)}\n¿Cuánto pagó?`,String(total))):total;if(!Number.isFinite(paid)||paid<total)return alert('El pago debe cubrir el total.');const sale={id:crypto.randomUUID(),date:new Date().toISOString(),total,paid,change:method==='efectivo'?paid-total:0,method,items:structuredClone(state.cart)};for(const item of sale.items){const p=state.products.find(p=>p.id===item.id);if(p)p.stock=Math.max(0,Math.round((p.stock-item.qty)*1000)/1000);}state.sales.push(sale);if(!await persist())return;state.cart=[];render();alert(`Venta guardada. Cambio: ${money(sale.change)}`);}
+async function addProduct(){const name=prompt('Nombre del producto');if(!name)return;const price=Number(prompt('Precio de venta ($)'));if(!(price>0))return;const cost=Number(prompt('Costo de compra ($)'));if(!(cost>=0))return;const unit=prompt('Unidad: pieza, kg o docena','pieza')||'pieza';const code=prompt('Código de barras (opcional)','')||'';state.products.push({id:crypto.randomUUID(),name,code,category:prompt('Categoría','Abarrotes')||'Abarrotes',price,cost,stock:0,unit});await persist();render();}
+async function openCash(){if(!state.folder)return alert('Elige primero una carpeta de datos.');if(isOpen())return alert('La caja ya está abierta.');const opening=Number(prompt('Efectivo inicial en caja ($)','0'));if(!Number.isFinite(opening)||opening<0)return;state.cash.push({id:crypto.randomUUID(),openedAt:new Date().toISOString(),opening,status:'open'});if(await persist())render();}
+async function closeCash(){const session=state.cash.find(c=>c.status==='open');if(!session)return;const sales=state.sales.filter(s=>s.date>=session.openedAt);const cashSales=sales.filter(s=>s.method==='efectivo').reduce((n,s)=>n+s.total,0);const nonCash=sales.filter(s=>s.method!=='efectivo').reduce((n,s)=>n+s.total,0);const cashIn=state.cash.filter(c=>c.type==='in'&&c.date>=session.openedAt).reduce((n,c)=>n+c.amount,0);const cashOut=state.cash.filter(c=>c.type==='out'&&c.date>=session.openedAt).reduce((n,c)=>n+c.amount,0);const expected=session.opening+cashSales+cashIn-cashOut;const counted=Number(prompt(`Efectivo esperado: ${money(expected)}\nVentas no efectivo: ${money(nonCash)}\n¿Cuánto efectivo contaste?`));if(!Number.isFinite(counted)||counted<0)return;session.status='closed';session.closedAt=new Date().toISOString();session.expected=expected;session.counted=counted;session.difference=counted-expected;session.salesTotal=sales.reduce((n,s)=>n+s.total,0);if(await persist()){render();alert(`Corte guardado. Diferencia: ${money(session.difference)}`);}}
+async function cashMovement(type){const amount=Number(prompt(type==='in'?'Entrada de efectivo ($)':'Salida de efectivo ($)'));if(!(amount>0))return;state.cash.push({id:crypto.randomUUID(),type,amount,note:prompt('Motivo','')||'',date:new Date().toISOString()});await persist();render();}
+function backup(){const blob=new Blob([JSON.stringify(exportData(),null,2)],{type:'application/json'});const url=URL.createObjectURL(blob);const a=document.createElement('a');a.href=url;a.download=`respaldo-tiendita-${today()}.json`;a.click();URL.revokeObjectURL(url);}
+function restore(){const input=document.createElement('input');input.type='file';input.accept='.json,application/json';input.onchange=async()=>{try{const data=JSON.parse(await input.files[0].text());if(!Array.isArray(data.products)||!Array.isArray(data.sales))throw Error('Formato no válido');if(!confirm('Restaurar reemplazará los datos actuales. ¿Continuar?'))return;applyData(data);if(await persist())render();}catch(e){alert(`No se pudo restaurar el archivo: ${e.message}`);}};input.click();}
+async function archiveOldSales(){const cutoff=new Date();cutoff.setFullYear(cutoff.getFullYear()-1);const old=state.sales.filter(s=>new Date(s.date)<cutoff);if(!old.length)return alert('No hay ventas con más de un año para archivar.');const grouped=new Map();for(const sale of old){const month=dayKey(sale.date).slice(0,7);const row=grouped.get(month)||{month,sales:0,revenue:0,cost:0,profit:0,count:0};row.sales+=sale.total;row.count++;for(const i of sale.items||[])row.cost+=i.cost*i.qty;row.profit=row.sales-row.cost;grouped.set(month,row);}const additions=[...grouped.values()];const msg=`Se resumirán ${old.length} ventas anteriores a ${cutoff.toLocaleDateString('es-MX')} y se eliminará su detalle. Se conservarán ingresos, costo, utilidad y cantidad por mes.\n\nDescarga un respaldo antes de continuar. ¿Archivar?`;if(!confirm(msg))return;backup();state.archives.push(...additions);state.sales=state.sales.filter(s=>new Date(s.date)>=cutoff);if(await persist()){render();alert('Historial archivado; los totales mensuales se conservaron.');}}
+function stopCamera(){state.stream?.getTracks().forEach(t=>t.stop());state.stream=null;state.camera=null;}
+async function startCamera(){if(!('BarcodeDetector'in window))return alert('Este navegador no incluye lector de códigos. Prueba con Chrome actualizado en Android o usa la pistola escáner.');try{const formats=await BarcodeDetector.getSupportedFormats();const detector=new BarcodeDetector({formats});state.stream=await navigator.mediaDevices.getUserMedia({video:{facingMode:{ideal:'environment'},width:{ideal:1920},height:{ideal:1080}},audio:false});state.view='venta';state.camera={detector,formats};render();const video=document.querySelector('#camera-video');video.srcObject=state.stream;await video.play();const scan=async()=>{if(!state.camera)return;try{const codes=await detector.detect(video);if(codes.length){const code=codes[0].rawValue;stopCamera();state.query=code;const p=state.products.find(p=>p.code===code);render();if(p)add(p);else alert(`Código ${code}: producto no registrado. Agrégalo desde Inventario.`);return;}}catch{}requestAnimationFrame(scan);};requestAnimationFrame(scan);}catch(e){stopCamera();alert(`No se pudo abrir la cámara. Revisa el permiso del navegador. ${e.message}`);}}
+function layout(){const title={venta:'Punto de venta',inventario:'Inventario',resumen:'Resumen'}[state.view];return `<div class="shell"><aside class="rail"><div class="brand"><span class="brand-mark">L</span><span>la tiendita<small>punto de venta</small></span></div><nav>${nav('venta','▦','Vender')}${nav('inventario','▤','Inventario')}${nav('resumen','◷','Resumen')}</nav><div class="rail-foot"><span class="status-dot ${state.folder?'online':''}"></span>${state.folder?'Carpeta lista':'Falta elegir carpeta'}</div></aside><main class="main"><header class="topbar"><div><div class="eyebrow">TU NEGOCIO, EN ORDEN</div><h1>${title}</h1></div><div class="head-actions"><button class="cash-pill ${isOpen()?'open':''}" data-action="cash">${isOpen()?'Caja abierta':'Abrir caja'}</button><button class="folder-btn" data-action="folder"><span>▱</span> ${state.folder?'Carpeta conectada':'Elegir carpeta'}</button></div></header>${state.camera?`<section class="camera-card"><div class="section-head"><h2>Escanea el código</h2><button class="text-button" data-action="stop-camera">Cerrar cámara</button></div><video id="camera-video" playsinline></video><p>Centra el código de barras. Mantén la etiqueta enfocada y evita reflejos.</p><small>Formatos disponibles: ${state.camera.formats.join(', ')}</small></section>`:state.view==='venta'?salesPage():state.view==='inventario'?inventoryPage():summaryPage()}</main><nav class="mobile-nav">${nav('venta','▦','Vender')}${nav('inventario','▤','Stock')}${nav('resumen','◷','Resumen')}</nav><div class="tools-fab"><button data-action="backup">Respaldo</button><button data-action="restore">Restaurar</button></div></div>`;}
+function nav(id,icon,label){return `<button class="nav-item ${state.view===id?'active':''}" data-view="${id}"><span>${icon}</span><b>${label}</b></button>`;}
+function salesPage(){return `<div class="page-grid"><section class="catalog"><div class="search-wrap"><span>⌕</span><input id="search" value="${escapeHtml(state.query)}" placeholder="Busca o escanea un producto" autocomplete="off"><button class="camera-btn" data-action="camera">▣ Cámara</button><kbd>PISTOLA</kbd></div><div class="chips">${cats().map(c=>`<button class="chip ${state.category===c?'selected':''}" data-cat="${escapeHtml(c)}">${escapeHtml(c)}</button>`).join('')}</div><div class="product-grid">${filtered().map(p=>`<button class="product-card" data-add="${p.id}"><div class="product-icon ${p.category==='Cremería'?'dairy':''}">${p.category==='Cremería'?'🥛':p.category==='Bebidas'?'🥤':p.category==='Botanas'?'🥔':'🛒'}</div><div class="product-name">${escapeHtml(p.name)}</div><div class="product-meta">${p.unit==='kg'?'Se vende por kilo':`${p.stock} disponibles`}</div><strong>${money(p.price)}<small>${p.unit==='kg'?' / kg':''}</small></strong></button>`).join('')}</div></section><aside class="ticket"><div class="ticket-head"><div><span class="eyebrow">VENTA ACTUAL</span><h2>Cuenta</h2></div><button class="text-button" data-action="clear">Vaciar</button></div>${state.cart.length?`<div class="ticket-items">${state.cart.map(row=>`<div class="ticket-row"><div><b>${escapeHtml(row.name)}</b><small>${money(row.price)}${row.unit==='kg'?' / kg':''}</small></div><div class="qty"><button data-qty="${row.id}" data-delta="-1">−</button><input data-inputqty="${row.id}" value="${row.qty}"><button data-qty="${row.id}" data-delta="1">+</button></div><strong>${money(row.qty*row.price)}</strong></div>`).join('')}</div>`:`<div class="empty-ticket"><span>🧺</span><b>Tu cuenta está vacía</b><small>Toca un producto o escanéalo para comenzar.</small></div>`}<div class="ticket-bottom"><div class="total-line"><span>Total</span><strong>${money(cartTotal())}</strong></div><button class="charge-btn" data-action="charge" ${state.cart.length?'':'disabled'}>Cobrar <span>→</span></button><div class="secure-note">▣ Cada venta se guarda en tu carpeta</div></div></aside></div>`;}
+function inventoryPage(){return `<section class="inventory-panel"><div class="section-head"><div><span class="eyebrow">PRODUCTOS DE TU TIENDA</span><h2>Inventario</h2></div><button class="primary-btn" data-action="new-product">＋ Agregar producto</button></div><div class="table-wrap"><table><thead><tr><th>Producto</th><th>Código</th><th>Precio</th><th>Existencia</th><th>Unidad</th></tr></thead><tbody>${state.products.map(p=>`<tr><td><b>${escapeHtml(p.name)}</b><small>${escapeHtml(p.category)}</small></td><td>${escapeHtml(p.code||'—')}</td><td>${money(p.price)}</td><td><span class="stock ${p.stock<5?'low':''}">${p.stock}</span></td><td>${escapeHtml(p.unit)}</td></tr>`).join('')}</tbody></table></div><div class="storage-tools"><button class="secondary-btn" data-action="archive">Resumir ventas de más de un año</button><small>Descarga un respaldo antes de borrar detalle antiguo.</small></div></section>`;}
+function summaryPage(){const sales=todaySales(),revenue=sales.reduce((n,s)=>n+s.total,0),profit=sales.reduce((n,s)=>n+s.items.reduce((m,i)=>m+(i.price-i.cost)*i.qty,0),0),session=state.cash.find(c=>c.status==='open'),cashSales=sales.filter(s=>s.method==='efectivo').reduce((n,s)=>n+s.total,0);return `<section class="summary"><span class="eyebrow">HOY · ${new Date().toLocaleDateString('es-MX',{weekday:'long',day:'numeric',month:'long'})}</span><h2>Así va tu tienda</h2><div class="stat-grid"><article class="stat-card"><span>Ventas del día</span><strong>${money(revenue)}</strong><small>${sales.length} ventas</small></article><article class="stat-card"><span>Utilidad bruta estimada</span><strong>${money(profit)}</strong><small>Venta menos costo de mercancía</small></article><article class="stat-card"><span>Efectivo esperado</span><strong>${money(session?session.opening+cashSales:0)}</strong><small>${session?'Incluye fondo inicial':'Abre caja para iniciar'}</small></article></div><div class="cash-actions">${isOpen()?`<button class="secondary-btn" data-action="cash-in">＋ Entrada de efectivo</button><button class="secondary-btn" data-action="cash-out">− Salida de efectivo</button><button class="primary-btn" data-action="close-cash">Hacer corte de caja</button>`:`<button class="primary-btn" data-action="cash">Abrir caja</button>`}<button class="secondary-btn" data-action="backup">Descargar respaldo</button><button class="secondary-btn" data-action="restore">Restaurar respaldo</button></div><div class="inventory-panel recent"><div class="section-head"><div><span class="eyebrow">REGISTRO</span><h2>Ventas recientes</h2></div></div>${sales.length?sales.slice().reverse().slice(0,8).map(s=>`<div class="recent-row"><span>${new Date(s.date).toLocaleTimeString('es-MX',{hour:'2-digit',minute:'2-digit'})} · ${s.method} · ${s.items.length} productos</span><b>${money(s.total)}</b></div>`).join(''):'<p class="muted">Todavía no hay ventas hoy.</p>'}</div><div class="inventory-panel recent"><div class="section-head"><div><span class="eyebrow">RESPALDO Y ESPACIO</span><h2>Datos de la tienda</h2></div></div><p class="muted">Detalle de ventas: ${state.sales.length} · Totales archivados: ${state.archives.length} meses</p><button class="secondary-btn" data-action="archive">Archivar detalle de más de 1 año</button></div></section>`;}
+function escapeHtml(value){return String(value).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));}
+function render(){document.querySelector('#app').innerHTML=layout();bind();}
+function bind(){document.querySelectorAll('[data-view]').forEach(e=>e.onclick=()=>{stopCamera();state.view=e.dataset.view;render();});document.querySelectorAll('[data-cat]').forEach(e=>e.onclick=()=>{state.category=e.dataset.cat;render();});document.querySelectorAll('[data-add]').forEach(e=>e.onclick=()=>{const p=state.products.find(p=>p.id===e.dataset.add);if(p.unit==='kg'){const grams=Number(prompt(`${p.name}\n¿Cuántos gramos?`,'250'));if(grams>0)add(p,grams/1000);}else add(p);});document.querySelectorAll('[data-qty]').forEach(e=>e.onclick=()=>{const r=state.cart.find(i=>i.id===e.dataset.qty);r.qty=Math.max(.001,Math.round((r.qty+Number(e.dataset.delta))*1000)/1000);render();});document.querySelectorAll('[data-inputqty]').forEach(e=>e.onchange=()=>{const r=state.cart.find(i=>i.id===e.dataset.inputqty);r.qty=Math.max(.001,Number(e.value)||1);render();});document.querySelector('#search')?.addEventListener('input',e=>{const cursor=e.target.selectionStart;state.query=e.target.value;const p=state.products.find(p=>p.code&&p.code===state.query.trim());render();const input=document.querySelector('#search');input.focus();input.setSelectionRange(cursor,cursor);if(p){add(p);state.query='';render();}});document.querySelector('[data-action="folder"]')?.addEventListener('click',chooseFolder);document.querySelector('[data-action="charge"]')?.addEventListener('click',checkout);document.querySelector('[data-action="clear"]')?.addEventListener('click',()=>{state.cart=[];render();});document.querySelector('[data-action="new-product"]')?.addEventListener('click',addProduct);document.querySelector('[data-action="camera"]')?.addEventListener('click',startCamera);document.querySelector('[data-action="stop-camera"]')?.addEventListener('click',()=>{stopCamera();render();});document.querySelectorAll('[data-action="cash"]').forEach(e=>e.onclick=()=>isOpen()?closeCash():openCash());document.querySelector('[data-action="close-cash"]')?.addEventListener('click',closeCash);document.querySelector('[data-action="cash-in"]')?.addEventListener('click',()=>cashMovement('in'));document.querySelector('[data-action="cash-out"]')?.addEventListener('click',()=>cashMovement('out'));document.querySelectorAll('[data-action="backup"]').forEach(e=>e.onclick=backup);document.querySelectorAll('[data-action="restore"]').forEach(e=>e.onclick=restore);document.querySelectorAll('[data-action="archive"]').forEach(e=>e.onclick=archiveOldSales);}
+async function start(){await openDb();state.folder=await getHandle();if(!state.folder||!await loadFile())state.folder=null;render();if('serviceWorker'in navigator&&location.protocol!=='file:')navigator.serviceWorker.register('./sw.js').catch(()=>{});}
 start();
