@@ -1,0 +1,10 @@
+{
+  "name": "La Tiendita · Punto de venta",
+  "short_name": "La Tiendita",
+  "description": "Punto de venta para tiendas de abarrotes",
+  "start_url": "/",
+  "display": "standalone",
+  "background_color": "#f6f7f4",
+  "theme_color": "#f6f7f4",
+  "icons": []
+}
