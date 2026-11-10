@@ -2,7 +2,7 @@ name: Publish store preview
 
 on:
   push:
-    branches: [refactor-abarrotes]
+    branches: [main, refactor-abarrotes]
   workflow_dispatch:
 
 permissions:
