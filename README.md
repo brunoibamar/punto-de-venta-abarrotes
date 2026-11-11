@@ -10,7 +10,7 @@ Los lectores de código configurados como teclado pueden escribir en el campo de
 
 ## Alcance de esta primera versión
 
-- En Ajustes muestra el uso estimado del almacenamiento local después de cada guardado. Si supera el 80% del límite informado por el navegador, recomienda descargar un respaldo y revisar el archivado del detalle antiguo; el encargado confirma el archivado con su PIN.
+- En Venta muestra el estado del guardado local, avisa cuando la copia en carpeta requiere autorización y refleja si la tienda quedó sin conexión. En Ajustes muestra el uso estimado del almacenamiento local después de cada guardado. Si supera el 80% del límite informado por el navegador, recomienda descargar un respaldo y revisar el archivado del detalle antiguo; el encargado confirma el archivado con su PIN.
 - Cada cambio se guarda primero en el almacenamiento local de la aplicación; si la carpeta tiene permiso, también se sincroniza allí `tiendita-datos.json`. En el cierre de caja puedes enviar una copia manual; el navegador puede pedir que autorices de nuevo el acceso a la carpeta.
 - Recupera los datos desde esa carpeta al volver a abrir la aplicación cuando el navegador conserva el permiso.
 - Redondea cada renglón a centavos y usa ese mismo importe en carrito, comprobante y exportación para que los importes visibles cuadren con el total. Bloquea el doble envío del formulario de cobro mientras se guarda la venta, para evitar duplicados por toques repetidos; al guardar, confirma el total y el cambio en efectivo con un aviso breve.
