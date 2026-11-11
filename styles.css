@@ -74,3 +74,5 @@
 .device-help-card .setting-copy>p{margin:7px 0;color:#6f786e;font-size:12px;line-height:1.55}.device-help-card .setting-copy>p b{color:#2e4035}
 
 .history-toggle{width:100%;margin-top:12px}.sales-history-panel{margin-top:14px}.sales-history-panel .search-wrap{margin:10px 0}.history-sale-list{display:grid;max-height:65dvh;overflow:auto}.history-sale-list .recent-row{min-height:55px}
+
+.credit-accounts-panel{margin:14px 0}.credit-total{color:var(--dark);font-size:18px}.credit-account-list{display:grid;gap:8px;margin-top:10px}.credit-account-list article{display:grid;grid-template-columns:minmax(100px,1fr) auto auto;align-items:center;gap:10px;padding:10px 0;border-top:1px solid var(--line)}.credit-account-list article>div{display:grid;gap:3px}.credit-account-list article small{color:var(--muted);font-size:10px}.credit-account-list article>strong{font-size:13px}.credit-balance-due{color:#a34936}.credit-balance-positive{color:var(--green)}@media(max-width:760px){.payment-methods{grid-template-columns:repeat(2,minmax(0,1fr))}.credit-account-list article{grid-template-columns:1fr auto}.credit-account-list article .secondary-btn{grid-column:1/-1;width:100%}}
