@@ -19,7 +19,7 @@ Los lectores de código configurados como teclado pueden escribir en el campo de
 - Importa y descarga el catálogo en CSV; al importar, las existencias no cambian y los productos nuevos comienzan en cero.
 - Controla caducidad por lote: cada resurtido conserva su fecha, las ventas priorizan el lote que vence antes y las devoluciones pueden restaurar el lote original.
 - Advierte en la cuenta cuando la cantidad rebasa las existencias registradas, sin impedir continuar si el conteo está pendiente de actualizar.
-- Incluye una guía rápida de operación en Ajustes. El lector de cámara confirma lecturas consecutivas y ofrece zoom/luz cuando el dispositivo lo admite.
+- Incluye una guía rápida de operación en Ajustes. El encargado puede crear PIN individuales para el personal, limitar las acciones administrativas y cambiar de operador sin cerrar la caja. Los PIN nuevos se guardan con sal y derivación PBKDF2 en los datos locales; no son cuentas en línea. El lector de cámara confirma lecturas consecutivas y ofrece zoom/luz cuando el dispositivo lo admite.
 - Registra apertura, entradas y salidas de efectivo y corte de caja.
 - Exporta y restaura respaldos JSON.
 - Resume ventas de más de un año por mes y guarda ingresos, costo, utilidad y número de tickets antes de retirar el detalle; solicita una confirmación y descarga un respaldo.
