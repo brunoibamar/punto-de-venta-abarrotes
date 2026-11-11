@@ -15,15 +15,15 @@ Los lectores de código configurados como teclado pueden escribir en el campo de
 - Registra ventas en efectivo, calcula cambio y descuenta existencias.
 - Permite anular una venta con PIN de encargado y motivo; conserva el ticket, repone existencias opcionalmente y registra reembolsos en efectivo como salida de caja.
 - Incluye productos por pieza, kilo y docena.
-- Muestra ventas y utilidad bruta estimada por día, semana, mes y año; los totales anuales incluyen meses archivados.
+- Muestra ventas, ganancia bruta, gastos registrados y ganancia estimada después de gastos por semana, mes y año; los totales anuales incluyen meses archivados.
 - Busca productos en Inventario por nombre, marca, detalle, contenido o código de barras.
 - Importa y descarga el catálogo en CSV; al importar, las existencias no cambian y los productos nuevos comienzan en cero.
 - Controla caducidad por lote: cada resurtido conserva su fecha, las ventas priorizan el lote que vence antes y las devoluciones pueden restaurar el lote original.
 - Advierte en la cuenta cuando la cantidad rebasa las existencias registradas, sin impedir continuar si el conteo está pendiente de actualizar.
 - Incluye una guía rápida de operación en Ajustes. El encargado puede crear PIN individuales para el personal, limitar las acciones administrativas y cambiar de operador sin cerrar la caja. Los PIN nuevos se guardan con sal y derivación PBKDF2 en los datos locales; no son cuentas en línea. El lector de cámara confirma lecturas consecutivas y ofrece zoom/luz cuando el dispositivo lo admite.
-- Registra apertura, entradas y salidas de efectivo y corte de caja.
+- Registra apertura, entradas, retiros, pagos a proveedores y gastos del negocio por separado. El corte muestra los gastos del turno; el resumen resta solo los gastos marcados como tales de la ganancia estimada.
 - Exporta y restaura respaldos JSON.
-- Resume ventas de más de un año por mes y guarda ingresos, costo, utilidad y número de tickets antes de retirar el detalle; solicita una confirmación y descarga un respaldo.
+- Resume ventas de más de un año por mes y guarda ingresos, costo, gastos, ganancia bruta, ganancia neta y número de tickets antes de retirar el detalle; solicita una confirmación y descarga un respaldo.
 - Incluye una base PWA para instalación y caché de la interfaz.
 
 La carpeta elegida es la copia operativa; mantén una copia de respaldo del archivo de datos. La limpieza anual se inicia manualmente desde Resumen o Inventario para que el dueño controle cuándo archivar. Comprueba la cámara y la selección de carpeta en Chrome Android con HTTPS; el soporte depende del navegador y del dispositivo.

@@ -64,3 +64,5 @@
 .access-note{max-width:700px;padding:22px;border:1px solid var(--line);border-radius:14px;background:#fff}.access-note h2{margin:7px 0;font:800 18px Manrope}.access-note p{color:#737c71;font-size:12px;line-height:1.5}.shift-staff-log{padding:9px 11px;border-radius:8px;background:#f5f8f3;color:#62705f;font-size:10px;line-height:1.5}
 
 .inventory-search{margin:8px 0 14px}
+
+.report-expenses{display:grid;grid-template-columns:1fr auto;gap:5px 10px;padding:12px 0;border-bottom:1px solid var(--line)}.report-expenses small{grid-column:1/-1;color:var(--muted);font-size:11px}.summary-stat-grid{grid-template-columns:repeat(3,minmax(0,1fr))}@media(max-width:760px){.summary-stat-grid{grid-template-columns:1fr}}
