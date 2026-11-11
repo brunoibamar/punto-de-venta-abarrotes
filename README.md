@@ -17,6 +17,7 @@ Los lectores de código configurados como teclado pueden escribir en el campo de
 - Incluye productos por pieza, kilo y docena.
 - Muestra ventas y utilidad bruta estimada por día, semana, mes y año; los totales anuales incluyen meses archivados.
 - Importa y descarga el catálogo en CSV; al importar, las existencias no cambian y los productos nuevos comienzan en cero.
+- Controla caducidad por lote: cada resurtido conserva su fecha, las ventas priorizan el lote que vence antes y las devoluciones pueden restaurar el lote original.
 - Registra apertura, entradas y salidas de efectivo y corte de caja.
 - Exporta y restaura respaldos JSON.
 - Resume ventas de más de un año por mes y guarda ingresos, costo, utilidad y número de tickets antes de retirar el detalle; solicita una confirmación y descarga un respaldo.
