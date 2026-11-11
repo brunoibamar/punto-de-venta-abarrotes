@@ -17,6 +17,7 @@ Los lectores de código configurados como teclado pueden escribir en el campo de
 - Incluye productos por pieza, kilo y docena.
 - Muestra ventas, ganancia bruta, gastos registrados y ganancia estimada después de gastos por semana, mes y año; los totales anuales incluyen meses archivados. Desde el historial, el encargado puede descargar las ventas detalladas conservadas en CSV; las ventas archivadas quedan en los resúmenes mensuales.
 - Muestra en Resumen avisos de productos por reponer o con caducidad en los próximos 7 días; cada aviso abre el filtro correspondiente en Inventario.
+- En Venta muestra accesos de un toque a los seis productos que más se han vendido en los últimos 30 días, cuando no hay búsqueda ni filtro de categoría activo.
 - Busca productos en Inventario por nombre, marca, detalle, contenido o código de barras. Muestra el historial de ventas, resurtidos, anulaciones y conteos por producto. En Resumen permite buscar tickets conservados por fecha, producto o forma de pago.
 - Importa y descarga el catálogo en CSV; al importar, las existencias no cambian y los productos nuevos comienzan en cero.
 - Controla caducidad por lote: cada resurtido conserva su fecha, las ventas priorizan el lote que vence antes y las devoluciones pueden restaurar el lote original.
