@@ -23,6 +23,7 @@ Los lectores de código configurados como teclado pueden escribir en el campo de
 - Controla caducidad por lote: cada resurtido conserva su fecha, las ventas priorizan el lote que vence antes y las devoluciones pueden restaurar el lote original.
 - Advierte en la cuenta cuando la cantidad rebasa las existencias registradas, sin impedir continuar si el conteo está pendiente de actualizar.
 - Incluye una guía rápida de operación en Ajustes. El encargado puede crear PIN individuales para el personal, limitar las acciones administrativas y cambiar de operador sin cerrar la caja. Los PIN nuevos se guardan con sal y derivación PBKDF2 en los datos locales; no son cuentas en línea. El lector de cámara confirma lecturas consecutivas y ofrece zoom/luz cuando el dispositivo lo admite.
+- Al cerrar caja, el conteo por denominación compara en vivo el efectivo contado con el esperado y señala coincidencias o diferencias antes de confirmar.
 - Registra apertura, entradas, retiros, pagos a proveedores y gastos del negocio por separado. El corte muestra los gastos del turno; el resumen resta solo los gastos marcados como tales de la ganancia estimada.
 - Exporta y restaura respaldos JSON. Antes de restaurar, descarga una copia de los datos actuales, valida las colecciones del archivo y evita reemplazar información durante una caja abierta.
 - Resume ventas de más de un año por mes y guarda ingresos, costo, gastos, ganancia bruta, ganancia neta y número de tickets antes de retirar el detalle; solicita una confirmación y descarga un respaldo.
