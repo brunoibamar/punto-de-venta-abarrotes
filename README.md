@@ -12,7 +12,7 @@ Los lectores de código configurados como teclado pueden escribir en el campo de
 
 - Elige una carpeta y guarda allí el inventario y el historial en `tiendita-datos.json`.
 - Recupera los datos desde esa carpeta al volver a abrir la aplicación cuando el navegador conserva el permiso.
-- Registra ventas en efectivo, tarjeta, transferencia o fiado; calcula cambio con importes sugeridos y separa cada forma de pago en el resumen y corte. El fiado se asigna a clientes, admite abonos en efectivo o transferencia y no se suma al cajón al vender. El carrito pendiente se conserva en la misma pestaña si la aplicación se actualiza o recarga. Los tickets con deuda pendiente se conservan aunque tengan más de un año; al liquidarse podrán archivarse.
+- Registra ventas en efectivo, tarjeta, transferencia o fiado; calcula cambio con importes sugeridos y separa cada forma de pago en el resumen y corte. El fiado se asigna a clientes, admite abonos en efectivo o transferencia y no se suma al cajón al vender. El estado de cuenta muestra ventas, abonos y los resúmenes mensuales archivados. El carrito pendiente se conserva en la misma pestaña si la aplicación se actualiza o recarga. Los tickets con deuda pendiente se conservan aunque tengan más de un año; al liquidarse podrán archivarse.
 - Permite anular una venta con PIN de encargado y motivo; conserva el ticket, repone existencias opcionalmente y registra reembolsos en efectivo como salida de caja.
 - Incluye productos por pieza, kilo y docena.
 - Muestra una gráfica de ventas por cada uno de los últimos siete días para el encargado, junto con los reportes de semana, mes y año.
