@@ -19,6 +19,7 @@ Los lectores de código configurados como teclado pueden escribir en el campo de
 - Muestra ventas, ganancia bruta, gastos registrados y ganancia estimada después de gastos por semana, mes y año; los totales anuales incluyen meses archivados. Desde el historial, el encargado puede descargar las ventas detalladas conservadas en CSV; las ventas archivadas quedan en los resúmenes mensuales.
 - Muestra en Resumen avisos de productos por reponer o con caducidad en los próximos 7 días; cada aviso abre el filtro correspondiente en Inventario.
 - En Venta muestra accesos de un toque a los seis productos que más se han vendido en los últimos 30 días, cuando no hay búsqueda ni filtro de categoría activo.
+- Al agregar un producto al carrito ofrece deshacer la última cantidad añadida durante unos segundos.
 - Al registrar un resurtido de un producto por debajo de su mínimo, propone la cantidad necesaria para llegar al mínimo; el encargado puede editarla antes de confirmar.
 - Busca productos en Inventario por nombre, marca, detalle, contenido o código de barras. Muestra el historial de ventas, resurtidos, anulaciones y conteos por producto. En Resumen permite buscar tickets conservados por fecha, producto o forma de pago.
 - Descarga en CSV el historial de compras y resurtidos, con cantidades, costos, proveedor, caducidad y operador.
