@@ -62,3 +62,5 @@
 .login-card select,.form-modal select{width:100%;min-height:42px;padding:10px 12px;border:1px solid #dfe5dd;border-radius:9px;background:#fff;color:#303a32;font:500 12px 'DM Sans'}.staff-card .setting-copy{flex:1;min-width:0}.staff-list{display:grid;gap:0;margin-top:10px}.staff-list>div{display:flex;align-items:center;justify-content:space-between;gap:10px;padding:9px 0;border-top:1px solid #edf0ea}.staff-list span,.staff-list b,.staff-list small{display:block}.staff-list b{font-size:11px;color:#39443a}.staff-list small{margin-top:3px;color:#81877e;font-size:9px}.staff-list .text-button{flex:0 0 auto;color:#a45149}@media(max-width:760px){.staff-card{align-items:stretch}.staff-card>.secondary-btn{width:100%}.staff-list>div{gap:6px}}
 
 .access-note{max-width:700px;padding:22px;border:1px solid var(--line);border-radius:14px;background:#fff}.access-note h2{margin:7px 0;font:800 18px Manrope}.access-note p{color:#737c71;font-size:12px;line-height:1.5}.shift-staff-log{padding:9px 11px;border-radius:8px;background:#f5f8f3;color:#62705f;font-size:10px;line-height:1.5}
+
+.inventory-search{margin:8px 0 14px}
