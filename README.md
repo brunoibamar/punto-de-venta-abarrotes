@@ -15,6 +15,7 @@ Los lectores de código configurados como teclado pueden escribir en el campo de
 - Registra ventas en efectivo, tarjeta, transferencia o fiado; calcula cambio con importes sugeridos y separa cada forma de pago en el resumen y corte. El fiado se asigna a clientes, admite abonos en efectivo o transferencia y no se suma al cajón al vender. El carrito pendiente se conserva en la misma pestaña si la aplicación se actualiza o recarga. Los tickets con deuda pendiente se conservan aunque tengan más de un año; al liquidarse podrán archivarse.
 - Permite anular una venta con PIN de encargado y motivo; conserva el ticket, repone existencias opcionalmente y registra reembolsos en efectivo como salida de caja.
 - Incluye productos por pieza, kilo y docena.
+- Muestra una gráfica de ventas por cada uno de los últimos siete días para el encargado, junto con los reportes de semana, mes y año.
 - Muestra ventas, ganancia bruta, gastos registrados y ganancia estimada después de gastos por semana, mes y año; los totales anuales incluyen meses archivados. Desde el historial, el encargado puede descargar las ventas detalladas conservadas en CSV; las ventas archivadas quedan en los resúmenes mensuales.
 - Muestra en Resumen avisos de productos por reponer o con caducidad en los próximos 7 días; cada aviso abre el filtro correspondiente en Inventario.
 - En Venta muestra accesos de un toque a los seis productos que más se han vendido en los últimos 30 días, cuando no hay búsqueda ni filtro de categoría activo.
