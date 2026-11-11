@@ -14,7 +14,8 @@ Los lectores de código configurados como teclado pueden escribir en el campo de
 - Recupera los datos desde esa carpeta al volver a abrir la aplicación cuando el navegador conserva el permiso.
 - Registra ventas en efectivo, calcula cambio y descuenta existencias.
 - Incluye productos por pieza, kilo y docena.
-- Muestra ventas y utilidad bruta estimada del día.
+- Muestra ventas y utilidad bruta estimada por día, semana, mes y año; los totales anuales incluyen meses archivados.
+- Importa y descarga el catálogo en CSV; al importar, las existencias no cambian y los productos nuevos comienzan en cero.
 - Registra apertura, entradas y salidas de efectivo y corte de caja.
 - Exporta y restaura respaldos JSON.
 - Resume ventas de más de un año por mes y guarda ingresos, costo, utilidad y número de tickets antes de retirar el detalle; solicita una confirmación y descarga un respaldo.
