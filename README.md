@@ -6,7 +6,7 @@ Aplicación web para una tienda de abarrotes, adaptable a teléfono, tableta y c
 
 Sirve la carpeta desde un servidor web local o de desarrollo en HTTPS. El selector de carpeta de Android requiere un navegador compatible y un contexto seguro. En Chrome de Android, abre **Elegir carpeta** y selecciona la carpeta donde guardar `tiendita-datos.json`.
 
-Los lectores de código configurados como teclado pueden escribir en el campo de búsqueda; se agrega automáticamente el artículo cuando el lector envía el código completo. En Android, el botón Cámara usa el detector nativo cuando está disponible y cuenta con un lector alternativo Quagga2 incluido en la aplicación. La cámara solicita permiso al navegador; ambos lectores procesan localmente y pueden funcionar sin internet después de cargar la app. Los productos por kilo solicitan el peso en gramos.
+Los lectores de código configurados como teclado pueden escribir en el campo de búsqueda; se agrega automáticamente el artículo cuando el lector envía el código completo. En Android, el botón Cámara usa el detector nativo cuando está disponible y cuenta con un lector alternativo Quagga2 incluido en la aplicación. La cámara solicita permiso al navegador; ambos lectores procesan localmente y pueden funcionar sin internet después de cargar la app. Los productos por kilo aceptan gramos enteros o kilos con hasta tres decimales; validan la precisión antes de agregarlos al cobro.
 
 ## Alcance de esta primera versión
 
