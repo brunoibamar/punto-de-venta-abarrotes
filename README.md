@@ -12,7 +12,7 @@ Los lectores de código configurados como teclado pueden escribir en el campo de
 
 - Elige una carpeta y guarda allí el inventario y el historial en `tiendita-datos.json`.
 - Recupera los datos desde esa carpeta al volver a abrir la aplicación cuando el navegador conserva el permiso.
-- Registra ventas en efectivo, calcula cambio con importes sugeridos y descuenta existencias.
+- Registra ventas en efectivo, tarjeta o transferencia; calcula cambio con importes sugeridos y separa cada forma de pago en el resumen y corte.
 - Permite anular una venta con PIN de encargado y motivo; conserva el ticket, repone existencias opcionalmente y registra reembolsos en efectivo como salida de caja.
 - Incluye productos por pieza, kilo y docena.
 - Muestra ventas, ganancia bruta, gastos registrados y ganancia estimada después de gastos por semana, mes y año; los totales anuales incluyen meses archivados.
