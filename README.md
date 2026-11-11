@@ -21,6 +21,7 @@ Los lectores de código configurados como teclado pueden escribir en el campo de
 - En Venta muestra accesos de un toque a los seis productos que más se han vendido en los últimos 30 días, cuando no hay búsqueda ni filtro de categoría activo.
 - Al registrar un resurtido de un producto por debajo de su mínimo, propone la cantidad necesaria para llegar al mínimo; el encargado puede editarla antes de confirmar.
 - Busca productos en Inventario por nombre, marca, detalle, contenido o código de barras. Muestra el historial de ventas, resurtidos, anulaciones y conteos por producto. En Resumen permite buscar tickets conservados por fecha, producto o forma de pago.
+- Descarga en CSV el historial de compras y resurtidos, con cantidades, costos, proveedor, caducidad y operador.
 - Importa y descarga el catálogo en CSV; al importar, las existencias no cambian y los productos nuevos comienzan en cero.
 - Controla caducidad por lote: cada resurtido conserva su fecha, las ventas priorizan el lote que vence antes y las devoluciones pueden restaurar el lote original.
 - Advierte en la cuenta cuando la cantidad rebasa las existencias registradas, sin impedir continuar si el conteo está pendiente de actualizar.
