@@ -13,7 +13,7 @@ Los lectores de código configurados como teclado pueden escribir en el campo de
 - En Ajustes muestra el uso estimado del almacenamiento local después de cada guardado. Si supera el 80% del límite informado por el navegador, recomienda descargar un respaldo y revisar el archivado del detalle antiguo; el encargado confirma el archivado con su PIN.
 - Elige una carpeta y guarda allí el inventario y el historial en `tiendita-datos.json`.
 - Recupera los datos desde esa carpeta al volver a abrir la aplicación cuando el navegador conserva el permiso.
-- Bloquea el doble envío del formulario de cobro mientras se guarda la venta, para evitar duplicados por toques repetidos.
+- Bloquea el doble envío del formulario de cobro mientras se guarda la venta, para evitar duplicados por toques repetidos. Al guardar, confirma el total y el cambio en efectivo con un aviso breve.
 - Registra ventas en efectivo, tarjeta, transferencia o fiado; calcula cambio con importes sugeridos y separa cada forma de pago en el resumen y corte. El fiado se asigna a clientes, admite abonos en efectivo o transferencia y no se suma al cajón al vender. El estado de cuenta muestra ventas, abonos y los resúmenes mensuales archivados. El encargado puede exportar en CSV los movimientos y saldos actuales de todas las cuentas. El carrito pendiente se conserva en la misma pestaña si la aplicación se actualiza o recarga. Los tickets con deuda pendiente se conservan aunque tengan más de un año; al liquidarse podrán archivarse.
 - Permite anular una venta con PIN de encargado y motivo; conserva el ticket, repone existencias opcionalmente y registra reembolsos en efectivo como salida de caja.
 - Incluye productos por pieza, kilo y docena.
